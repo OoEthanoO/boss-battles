@@ -47,6 +47,7 @@ class BossBattle:
     def __init__(self, players: list[dict[str, Any]], bosses: list[Boss]):
         self._players = players
         self._bosses = bosses
+        self._turn_count = 0
 
     def run(self):
         print("Running game")
@@ -54,8 +55,10 @@ class BossBattle:
         print()
         print("Players:\n" + "\n".join(map(str.upper, [p._name for p in self._players])))
         while self._should_continue_game():
-            for b in self._bosses:
-                BossBattle._print_health_bar(b)
+            self._turn_count += 1
+            BossBattle._print_health_list("BOSSES", self._bosses)
+            BossBattle._print_health_list("PLAYERS", self._players)
+            input()
     
     def _should_continue_game(self):
         if len(BossBattle._filter_active(self._bosses)) < 1:
@@ -71,6 +74,21 @@ class BossBattle:
         return [c for c in characters if c._stats.health > 0]
 
     @staticmethod
-    def _print_health_bar(character: Character):
-        pass
+    def _print_health_list(name: str, characters: list[Character]):
+        print(name.upper())
+        for c in characters:
+            BossBattle._print_health_bar(c, indent_level=1)
+
+    @staticmethod
+    def _print_health_bar(character: Character, indent_level: int=0):
+        output = " " * (indent_level * 4)
+        output += (character._name.upper()[:10] + ":").ljust(15)
+
+        total_blocks = 100
+        health_blocks = int(character._stats.health / character._base_stats.health * 100)
+        health_lost_blocks = total_blocks - health_blocks
+
+        output += f"[{'▓' * health_blocks}{' ' * health_lost_blocks}]"
+        output += " {} / {}".format(character._stats.health, character._base_stats.health)
+        print(output)
 
