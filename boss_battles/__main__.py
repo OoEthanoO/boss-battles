@@ -1,6 +1,12 @@
-from .game import Game
-from.fake_radio import FakeRadio
+from .game import BossBattle, Squirrel, Player
 
 
-fake_radio = FakeRadio()
-Game(radio=fake_radio).run()
+bosses = [
+    Squirrel()
+]
+
+players = [
+    Player("Mr. Gallo")
+]
+
+BossBattle(players=players, bosses=bosses).run()
