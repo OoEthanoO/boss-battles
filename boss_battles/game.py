@@ -67,7 +67,7 @@ class BossBattle:
         return True
         
     @staticmethod
-    def _filter_active(self, characters: list[Character]) -> list[Character]:
+    def _filter_active(characters: list[Character]) -> list[Character]:
         return [c for c in characters if c._stats.health > 0]
 
     @staticmethod
