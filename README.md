@@ -76,6 +76,9 @@ poetry shell
 
 # do some work, then run tests with
 pytest
+
+# Run the module
+python -m boss_battles
 ```
 
 ### 6. Stage your changes
