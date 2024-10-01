@@ -91,6 +91,10 @@ git add file1 file2
 ```bash
 # Commit with a message
 git commit -m "Description of what you changed"
+
+# If you get an error you need to add your GitHub username and email
+git config --global user.email "you@example.com"
+git config --global user.name "Your Name"
 ```
 
 ### 8. Push your changes
