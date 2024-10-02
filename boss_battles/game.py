@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Protocol
+from helper import parse
 
 
 @dataclass
@@ -44,7 +45,7 @@ class Squirrel(Boss):
 
 
 class BossBattle:
-    def __init__(self, players: list[dict[str, Any]], bosses: list[Boss]):
+    def __init__(self, players: list[Player], bosses: list[Boss]):
         self._players = players
         self._bosses = bosses
 
@@ -65,9 +66,21 @@ class BossBattle:
             return False
         
         return True
+    
+    def process_request(self, request: str):
+        data = parse(request)
+        if data is None:
+            return None
+        
+        caster = next(filter(lambda p: p._name == data["caster"], self._players), None)
+        target = next(filter(lambda b: b._name == data["target"], self._bosses), None)
+        if caster is None or target is None:
+            return None
+
+        print(f"caster: {data["caster"]}")
         
     @staticmethod
-    def _filter_active(self, characters: list[Character]) -> list[Character]:
+    def _filter_active(characters: list[Character]) -> list[Character]:
         return [c for c in characters if c._stats.health > 0]
 
     @staticmethod
