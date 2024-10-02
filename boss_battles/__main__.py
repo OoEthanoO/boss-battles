@@ -1,4 +1,5 @@
-from .game import BossBattle, Squirrel, Player
+from .game import BossBattle
+from .character import Squirrel, Player
 from .utils import print_health_list
 from .message import Message, InvalidMessageError
 
@@ -37,7 +38,7 @@ while battle.next_round():
         except InvalidMessageError as e:
             print("Invalid message: '{}'".format(action))
     
-    print(valid_messages)
+    battle.handle_actions(valid_messages)
 
     # boss action
 

@@ -1,4 +1,4 @@
-from .game import Character
+from .character import Character
 
 
 def print_health_list(name: str, characters: list[Character]) -> None:
