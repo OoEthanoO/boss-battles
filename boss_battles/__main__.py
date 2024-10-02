@@ -14,13 +14,13 @@ players = [
 battle = BossBattle(players=players, bosses=bosses)
 
 print("Running game")
-print("Boss{}: {}".format('es' if len(battle._bosses) > 1 else '', ', '.join(map(str.upper, [b._name for b in battle._bosses]))))
+print("Boss{}: {}".format('es' if len(battle._bosses) > 1 else '', ', '.join(map(str.upper, [b._name for b in battle._bosses.values()]))))
 print()
-print("Players:\n" + "\n".join(map(str.upper, [p._name for p in battle._players])))
+print("Players:\n" + "\n".join(map(str.upper, [p._name for p in battle._players.values()])))
 while battle.next_round():
     print("=" * 10 + " ROUND " + str(battle.get_round()) + " " + "=" * 10)
-    print_health_list("BOSSES", battle._bosses)
-    print_health_list("PLAYERS", battle._players)
+    print_health_list("BOSSES", battle._bosses.values())
+    print_health_list("PLAYERS", battle._players.values())
     print()
 
     opportunity_tokens = battle.get_opportunity_tokens()
@@ -32,7 +32,7 @@ while battle.next_round():
     # get actions from players
     valid_messages = []
     for player in players:
-        action = player._name.lower() + "@" + input("{}, enter action string: {}@".format(player._name, player._name.lower()))
+        action = input("{}, enter action string: ".format(player._name))
         try:
             valid_messages.append(Message(action))
         except InvalidMessageError as e:

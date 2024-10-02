@@ -6,9 +6,17 @@ from .character import Character
 
 class BossBattle:
     def __init__(self, players: list[Character], bosses: list[Character]):
-        self._players = players
-        self._bosses = bosses
-        # TODO: need a check to ensure all bosses have a unique name, or give them one like boss1, boss2.
+        # TODO: need a check to ensure all players and bosses have a unique name, or give them one like boss1, boss2.
+        
+        # Dictionary indexed by player name
+        self._players = {p._name: p for p in players}
+
+        # self._all_player_names: set[str] = set(p._name for p in players)
+
+        # Dictionary indexed by boss name
+        self._bosses = {b._name: b for b in bosses}
+
+        # self._all_character_names: set[str] = set(b._name for b in bosses) | self._all_player_names
         self._round_count = 0
     
     def next_round(self) -> bool:
@@ -16,7 +24,7 @@ class BossBattle:
             return False
         
         self._round_count += 1
-        for boss in self._bosses:
+        for boss in self._bosses.values():
             boss.generate_opportunity_token()
         
         return True
@@ -25,10 +33,10 @@ class BossBattle:
         return self._round_count
     
     def _should_continue(self) -> bool:
-        if len(BossBattle._filter_active(self._bosses)) < 1:
+        if len(BossBattle._filter_active(self._bosses.values())) < 1:
             return False
 
-        if len(BossBattle._filter_active(self._players)) < 1:
+        if len(BossBattle._filter_active(self._players.values())) < 1:
             return False
         
         return True
@@ -39,10 +47,32 @@ class BossBattle:
 
 
     def get_opportunity_tokens(self) -> list[str]:
-        return [b._name + ":" + b.get_opportunity_token() for b in self._bosses]
+        return [b._name + ":" + b.get_opportunity_token() for b in self._bosses.values()]
 
     
     def handle_actions(self, messages: list[Message]) -> None:
         for m in messages:
-            print("{} {} {} {}".format(m.user, m.target, m.action, m.args))
 
+            # TODO: should This be here or just raise error when we try to apply the action?
+            if not self._player_is_registered(m.user):
+                # TODO: problem: fails silently, possible to collect all invalid and print at the end? 
+                #       Or as it goes?
+                continue
+
+            if not self._target_is_registered(m.target):
+                continue
+            
+            self._apply_action(m)
+
+    def _player_is_registered(self, name: str) -> bool:
+        return name in self._players.keys()
+
+
+    def _target_is_registered(self, name: str) -> bool:
+        return name in self._bosses.keys()
+
+
+    def _apply_action(self, m: Message) -> None:
+        player = self._players[m.user]
+        print(player._name)
+    
