@@ -49,20 +49,19 @@ class BossBattle:
     def get_opportunity_tokens(self) -> list[str]:
         return [b._name + ":" + b.get_opportunity_token() for b in self._bosses.values()]
 
-    
-    def handle_actions(self, messages: list[Message]) -> None:
-        for m in messages:
-
-            # TODO: should This be here or just raise error when we try to apply the action?
-            if not self._player_is_registered(m.user):
-                # TODO: problem: fails silently, possible to collect all invalid and print at the end? 
-                #       Or as it goes?
-                continue
-
-            if not self._target_is_registered(m.target):
-                continue
             
-            self._apply_action(m)
+    def handle_action(self, action: Message) -> str:
+        # TODO: should This be here or just raise error when we try to apply the action?
+        # if not self._player_is_registered(m.user):
+        #     # TODO: problem: fails silently, possible to collect all invalid and print at the end? 
+        #     #       Or as it goes?
+        #     continue
+
+        # if not self._target_is_registered(m.target):
+        #     continue
+
+        return self._apply_action(m)
+
 
     def _player_is_registered(self, name: str) -> bool:
         return name in self._players.keys()
@@ -72,7 +71,10 @@ class BossBattle:
         return name in self._bosses.keys()
 
 
-    def _apply_action(self, m: Message) -> None:
+    def _apply_action(self, m: Message) -> str:
         player = self._players[m.user]
-        print(player._name)
+        target = self._bosses[m.target]
+        # ability = 
+
+        return "{player} {action} {target}"
     

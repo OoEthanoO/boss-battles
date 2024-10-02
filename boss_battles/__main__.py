@@ -38,7 +38,8 @@ while battle.next_round():
         except InvalidMessageError as e:
             print("Invalid message: '{}'".format(action))
     
-    battle.handle_actions(valid_messages)
+    for action in valid_messages:
+        battle.handle_action(action)
 
     # boss action
 
