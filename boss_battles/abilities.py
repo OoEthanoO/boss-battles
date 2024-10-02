@@ -1,4 +1,4 @@
-from game import Stats
+from .character import Stats
 
 class Ability:
     def __init__(self, name, action_change, resource_cost):
@@ -26,12 +26,6 @@ class BasicAttack(Ability):
 class Heal(Ability):
     def __init__(self):
         super().__init__("Heal", Stats(health=5), Stats(mana=-5))
-        
 
     def algorithm(self, op_token):
         return op_token[::-1]
-    
-attack_obj = BasicAttack()
-heal_obj = Heal()
-print(attack_obj.verify("ac", "abc"))
-print(heal_obj.verify("cba", "abc"))
