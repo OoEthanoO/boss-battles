@@ -39,7 +39,8 @@ while battle.next_round():
             print("Invalid message: '{}'".format(action))
     
     for action in valid_messages:
-        battle.handle_action(action)
+        result = battle.handle_action(action)
+        print(result)
 
     # boss action
 

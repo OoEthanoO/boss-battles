@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from .message import Message
 from .character import Character
+from .ability import AbilityRegistry
 
 
 class BossBattle:
@@ -50,7 +51,7 @@ class BossBattle:
         return [b._name + ":" + b.get_opportunity_token() for b in self._bosses.values()]
 
             
-    def handle_action(self, action: Message) -> str:
+    def handle_action(self, m: Message) -> str:
         # TODO: should This be here or just raise error when we try to apply the action?
         # if not self._player_is_registered(m.user):
         #     # TODO: problem: fails silently, possible to collect all invalid and print at the end? 
@@ -74,7 +75,7 @@ class BossBattle:
     def _apply_action(self, m: Message) -> str:
         player = self._players[m.user]
         target = self._bosses[m.target]
-        # ability = 
+        ability = AbilityRegistry.registry.get(m.action)
 
-        return "{player} {action} {target}"
+        return "{} used {} on {}".format(player._name, ability.name, target._name)
     
