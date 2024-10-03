@@ -1,8 +1,5 @@
 from .character import Stats
 
-# TODO: Should these classes be all static fields and static methods?
-#       The values within each of these would-be objects would never change
-#       Also, there is no need to create more that one (or any) object of each type.
 
 class Ability:
     def __init__(self, name, action_change, resource_cost):
