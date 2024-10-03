@@ -55,4 +55,4 @@ class Boss:
 class Squirrel(Boss):
     _name: str = "squirrel"
     _base_stats: Stats = Stats(health=5, mana=0, stamina=5, intelligence=1, agility=100, strength=1)
-    _stats: Stats =      Stats(health=5, mana=0, stamina=5, intelligence=1, agility=100, strength=1)
+    _stats     : Stats = Stats(health=5, mana=0, stamina=5, intelligence=1, agility=100, strength=1)
