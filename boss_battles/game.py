@@ -15,7 +15,25 @@ class BossBattle:
         # self._all_player_names: set[str] = set(p._name for p in players)
 
         # Dictionary indexed by boss name
-        self._bosses = {b._name: b for b in bosses}
+        # Need to assign unique names to bosses of same type
+        boss_type_registry: dict[Type, list[Character]] = {}
+        self._bosses = {}
+        for b in bosses:
+            try:
+                boss_type_registry[type(b)].append(b)
+                b._name += str(len(boss_type_registry[type(b)]))
+
+                # if more than one, need to go back and change the first one's name
+                if len(boss_type_registry[type(b)]) == 2:
+                    first_boss_of_type = boss_type_registry[type(b)][0]
+                    prev_ident = first_boss_of_type._name
+                    new_ident = first_boss_of_type._name + "1"
+                    self._bosses[new_ident] = first_boss_of_type
+                    del self._bosses[prev_ident]
+            except KeyError:
+                boss_type_registry[type(b)] = [b]
+            
+            self._bosses[b._name] = b
 
         # self._all_character_names: set[str] = set(b._name for b in bosses) | self._all_player_names
         self._round_count = 0
@@ -75,7 +93,7 @@ class BossBattle:
     def _apply_action(self, m: Message) -> str:
         player = self._players[m.user]
         target = self._bosses[m.target]
-        ability = AbilityRegistry.registry.get(m.action)
+        AbilityClass = AbilityRegistry.registry.get(m.action)
 
-        return "{} used {} on {}".format(player._name, ability.name, target._name)
+        return "{} used {} on {}".format(player._name, AbilityClass.name, target._name)
     
