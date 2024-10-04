@@ -1,8 +1,8 @@
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 from .message import Message
 from .character import Character
-from .ability import AbilityRegistry
+from .ability import AbilityRegistry, Ability
 
 
 class BossBattle:
@@ -85,7 +85,10 @@ class BossBattle:
         # if not self._target_is_registered(m.target):
         #     continue
 
-        return self._apply_action(m)
+        player = self._players[m.user]
+        target = self._bosses[m.target]
+        ChosenAbility = AbilityRegistry.registry.get(m.action)
+        return self._apply_action(player, target, ChosenAbility)
 
 
     def _player_is_registered(self, name: str) -> bool:
@@ -96,15 +99,11 @@ class BossBattle:
         return name in self._bosses.keys()
 
 
-    def _apply_action(self, m: Message) -> str:
-        player = self._players[m.user]
-        target = self._bosses[m.target]
-        AbilityClass = AbilityRegistry.registry.get(m.action)
-
+    def _apply_action(self, caster: Character, ChosenAbility: Type[Ability], target: Character) -> str:
         # Stand in until issue #1 is resolved
-        target._stats.health += AbilityClass.effect.health
+        target._stats.health += ChosenAbility.effect.health
 
-        return "{} used {} on {}".format(player._name, AbilityClass.name, target._name)
+        return "{} used {} on {}".format(caster._name, ChosenAbility.name, target._name)
     
     def boss_turn(self):
         for boss in self._bosses.values():
@@ -112,6 +111,6 @@ class BossBattle:
             caster, ability_ident, target = boss.do_turn(self)
             ChosenAbility = AbilityRegistry.registry.get(ability_ident)
 
-            # place holder until issue #1 is resolved
-            target._stats.health += ChosenAbility.effect.health
+            self._apply_action(caster, ChosenAbility, target)
+            
             
