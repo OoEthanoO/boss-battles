@@ -21,6 +21,9 @@ class BossBattle:
         for b in bosses:
             try:
                 boss_type_registry[type(b)].append(b)
+            except KeyError:
+                boss_type_registry[type(b)] = [b]
+            else:
                 b._name += str(len(boss_type_registry[type(b)]))
 
                 # if more than one, need to go back and change the first one's name
@@ -28,15 +31,18 @@ class BossBattle:
                     first_boss_of_type = boss_type_registry[type(b)][0]
                     prev_ident = first_boss_of_type._name
                     new_ident = first_boss_of_type._name + "1"
+                    first_boss_of_type._name = new_ident
                     self._bosses[new_ident] = first_boss_of_type
                     del self._bosses[prev_ident]
-            except KeyError:
-                boss_type_registry[type(b)] = [b]
             
             self._bosses[b._name] = b
 
         # self._all_character_names: set[str] = set(b._name for b in bosses) | self._all_player_names
         self._round_count = 0
+    
+    @property
+    def players(self) -> tuple[Character]:
+        return self._players.values()
     
     def next_round(self) -> bool:
         if not self._should_continue():
@@ -95,5 +101,17 @@ class BossBattle:
         target = self._bosses[m.target]
         AbilityClass = AbilityRegistry.registry.get(m.action)
 
+        # Stand in until issue #1 is resolved
+        target._stats.health += AbilityClass.effect.health
+
         return "{} used {} on {}".format(player._name, AbilityClass.name, target._name)
     
+    def boss_turn(self):
+        for boss in self._bosses.values():
+            # caster, ability identifier, target
+            caster, ability_ident, target = boss.do_turn(self)
+            ChosenAbility = AbilityRegistry.registry.get(ability_ident)
+
+            # place holder until issue #1 is resolved
+            target._stats.health += ChosenAbility.effect.health
+            
