@@ -1,13 +1,15 @@
-from .character import Character
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .character import Character
 
 
-def print_health_list(name: str, characters: list[Character]) -> None:
+def print_health_list(name: str, characters: list['Character']) -> None:
     print(name.upper())
     for c in characters:
         print_health_bar(c, indent_level=1)
 
 
-def print_health_bar(character: Character, indent_level: int=0) -> None:
+def print_health_bar(character: 'Character', indent_level: int=0) -> None:
     output = " " * (indent_level * 4)
     output += (character._name.upper()[:10] + ":").ljust(15)
 
