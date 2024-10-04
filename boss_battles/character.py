@@ -18,7 +18,17 @@ class Stats:
     stamina: int = 0
     intelligence: int = 0
     agility: int = 0
-    strength: int = 0
+    strength: int = 0   
+
+    def __add__(self, other):
+        return Stats(
+            health=self.health + other.health,
+            mana=self.mana + other.mana,
+            stamina=self.stamina + other.stamina,
+            intelligence=self.intelligence + other.intelligence,
+            agility=self.agility + other.agility,
+            strength=self.strength + other.strength
+        )
 
 
 class Character(Protocol):
