@@ -127,7 +127,7 @@ class BossBattle:
         # Stand in until issue #1 is resolved
         target._stats += chosen_ability.effect
 
-        log_string = "{} used {} on {}".format(caster._name, chosen_ability.name, target._name)
+        log_string = f"{caster._name} used {chosen_ability.name} on {target._name}"
         
         # could be that a target is defeated, so append that.
         return log_string
@@ -142,7 +142,7 @@ class BossBattle:
             if chosen_ability.verify(op_token, solve_token):
                 log_string += self._apply_action(caster, chosen_ability, target) + "\n"
             else:
-                log_string += "{}: WRONG SOLVE TOKEN!".format(caster._name.upper())
+                log_string += f"{caster._name.upper()}: WRONG SOLVE TOKEN!"
         return log_string
 
     def bosses_turn(self):

@@ -14,7 +14,9 @@ players = [
 battle = BossBattle(players=players, bosses=bosses)
 
 print("Running game")
-print("Boss{}: {}".format('es' if len(battle._bosses) > 1 else '', ', '.join(map(str.upper, [b._name for b in battle._bosses.values()]))))
+ending = 'es' if len(battle._bosses) > 1 else ''
+boss_names = ', '.join(map(str.upper, [b._name for b in battle._bosses.values()]))
+print(f"Boss{ending}: {boss_names}"
 print()
 print("Players:\n" + "\n".join(map(str.upper, [p._name for p in battle._players.values()])))
 while battle.next_round():
@@ -24,7 +26,7 @@ while battle.next_round():
     print()
 
     opportunity_tokens = battle.get_opportunity_tokens()
-    print("OPPORTUNITY TOKEN{}".format("S" if len(opportunity_tokens) > 1 else ""))
+    print(f"OPPORTUNITY TOKEN{'S' if len(opportunity_tokens) > 1 else ''}")
     for token in opportunity_tokens:
         print(token)
     print()
@@ -32,11 +34,11 @@ while battle.next_round():
     # get actions from players
     valid_messages = []
     for player in players:
-        action = input("{}, enter action string: ".format(player._name))
+        action = input(f"{player._name}, enter action string: ")
         try:
             valid_messages.append(Message(action))
         except InvalidMessageError as e:
-            print("Invalid message: '{}'".format(action))
+            print(f"Invalid message: '{action}'")
     
     for action in valid_messages:
         result = battle.handle_action(action)

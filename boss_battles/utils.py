@@ -18,5 +18,5 @@ def print_health_bar(character: 'Character', indent_level: int=0) -> None:
     health_lost_blocks = total_blocks - health_blocks
 
     output += f"[{'▓' * health_blocks}{' ' * health_lost_blocks}]"
-    output += " {} / {}".format(character._stats.health, character._base_stats.health)
+    output += f" {character._stats.health} / {character._base_stats.health}"
     print(output)
