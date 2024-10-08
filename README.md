@@ -108,6 +108,22 @@ git push origin your-branch-name
 
 
 ## The Game
+### Running the radio server
+```python
+from microbit import *
+import radio
+
+
+radio.on()
+radio.config(group=255)
+
+while True:
+    message = radio.receive()
+    if message:
+        uart.write(message + '\n')
+
+```
+
 ### Registering as a player
 ```python
 from microbit import *
