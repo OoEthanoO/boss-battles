@@ -20,10 +20,3 @@ def print_health_bar(character: 'Character', indent_level: int=0) -> None:
     output += f"[{'▓' * health_blocks}{' ' * health_lost_blocks}]"
     output += " {} / {}".format(character._stats.health, character._base_stats.health)
     print(output)
-
-
-def isalnum(s):
-    for c in s:
-        if not (('A' <= c <= 'Z') or ('a' <= c <= 'z') or ('0' <= c <= '9')):
-            return False
-    return True

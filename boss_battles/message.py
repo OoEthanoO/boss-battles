@@ -1,6 +1,3 @@
-from .utils import isalnum
-
-
 class InvalidMessageError(Exception):
     pass
 
@@ -50,7 +47,7 @@ class Message:
         
         # Optionally, validate that user_id, problem_id, and cmd are alphanumeric or underscores
         for component in [user, target, action]:
-            if not isalnum(component.replace('_', '')):
+            if not component.replace('_', '').isalnum():
                 raise InvalidMessageError("InvalidMessageError - Invalid characters. Must be letters and numbers only.")
         
         # Parse arguments into a list
