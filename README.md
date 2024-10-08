@@ -105,3 +105,22 @@ git config --global user.name "Your Name"
 # Push the branch to the remote repository
 git push origin your-branch-name
 ```
+
+
+## The Game
+### Registering as a player
+```python
+from microbit import *
+
+USERNAME = "user1"
+
+radio.config(group=255)
+radio.on()
+
+while True:
+    if button_b.was_pressed():
+        radio.send(USERNAME + "/register")
+        break
+
+# The rest of your game code will go down here...
+```

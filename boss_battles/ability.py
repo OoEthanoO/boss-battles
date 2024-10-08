@@ -1,4 +1,6 @@
-from .character import Stats
+from typing import Optional
+
+from .character import Stats, Boss, Character
 
 
 class AbilityRegistry:
@@ -28,6 +30,9 @@ class Ability:
             AbilityRegistry.register(cls.identifier, cls)
 
     def verify(self, op_token, solve_token):
+        # print(f"{op_token = }")
+        # print(f"{solve_token = }")
+        # print(f"{self.algorithm(op_token) = }")
         return solve_token == self.algorithm(op_token)
 
     def algorithm(self, op_token):
@@ -46,7 +51,7 @@ class BasicAttack(Ability):
     def verify(self, op_token, solve_token):
         # Basic attack is always castable
         return True
-    
+
 
 class Bite(Ability):
     identifier = "bite"
@@ -57,7 +62,7 @@ class Bite(Ability):
     def algorithm(self, op_token):
         return ""
 
-    def verify(self, op_token, solve_token):
+    def verify(self, boss: Boss, solve_token):
         # Bite is always castable
         return True
 
@@ -71,7 +76,7 @@ class Cower(Ability):
     def algorithm(self, op_token):
         return ""
 
-    def verify(self, op_token, solve_token):
+    def verify(self, boss: Boss, solve_token):
         # Bite is always castable
         return True
 

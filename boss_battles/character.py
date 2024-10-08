@@ -52,7 +52,6 @@ class Boss:
     _name: str
     _stats: Stats
     _ability_set: tuple[str]
-    _opportunity_tokens: list[str]
     _opportunity_token_length: int = 4
 
     def __init__(self):
@@ -62,14 +61,6 @@ class Boss:
     def is_alive(self):
         return self._stats.health > 0
     
-    def get_opportunity_token(self) -> str:
-        "Each boss will have random opportunity token generated each round"
-        return self._opportunity_tokens[-1]
-    
-    def generate_opportunity_token(self):
-        characters = "abcedfghijkmnpqrstuvwxyz0123456789"
-        self._opportunity_tokens.append(''.join(random.choice(characters) for _ in range(self._opportunity_token_length)).lower())
-
     def do_turn(self, battle: 'BossBattle') -> Action:
         """
         The idea is every boss requests to do an 

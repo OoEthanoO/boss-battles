@@ -1,6 +1,6 @@
 import pytest
 from boss_battles.ability import AbilityRegistry, BasicAttack, Heal, SwiftStrike
-from boss_battles.character import Stats
+from boss_battles.character import Stats, Boss, Player
 
 
 def test_basic_attack_verification():

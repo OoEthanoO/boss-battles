@@ -1,7 +1,8 @@
 from typing import Any, Optional, Type
+import random
 
 from .message import Message
-from .character import Character
+from .character import Character, Boss, Player
 from .ability import AbilityRegistry, Ability
 
 
@@ -16,7 +17,9 @@ class BossBattle:
 
         # Dictionary indexed by boss name
         # Need to assign unique names to bosses of same type
-        boss_type_registry: dict[Type, list[Character]] = {}
+        boss_type_registry = {}
+        # dict[Type, list[Character]]
+
         self._bosses = {}
         for b in bosses:
             try:
@@ -37,6 +40,10 @@ class BossBattle:
             
             self._bosses[b._name] = b
 
+        self._boss_tokens = {}
+        for boss_name in self._bosses.keys():
+            self._boss_tokens[boss_name] = []
+
         # self._all_character_names: set[str] = set(b._name for b in bosses) | self._all_player_names
         self._round_count = 0
     
@@ -49,10 +56,22 @@ class BossBattle:
             return False
         
         self._round_count += 1
-        for boss in self._bosses.values():
-            boss.generate_opportunity_token()
+        self._generate_opportunity_tokens()
         
         return True
+
+    def _generate_opportunity_tokens(self):
+        for boss in self._bosses.values():
+            if not BossBattle.character_is_alive(boss):
+                continue
+            token = BossBattle.generate_opportunity_token(boss._opportunity_token_length)
+            self._boss_tokens[boss._name].append(token)
+    
+    @staticmethod
+    def generate_opportunity_token(self, length: int = 4):
+        characters = "abcedfghijkmnpqrstuvwxyz0123456789"
+        return ''.join(random.choice(characters) for _ in range(length)).lower()
+
     
     def get_round(self) -> int:
         return self._round_count
@@ -68,12 +87,17 @@ class BossBattle:
         
     @staticmethod
     def _filter_active(characters: list[Character]) -> list[Character]:
-        return [c for c in characters if c._stats.health > 0]
+        return [c for c in characters if BossBattle.character_is_alive(c)]
 
+    @staticmethod
+    def character_is_alive(character: Character) -> bool:
+        return character._stats.health > 0
 
     def get_opportunity_tokens(self) -> list[str]:
-        return [b._name + ":" + b.get_opportunity_token() for b in self._bosses.values()]
+        return [name + ":" + tokens[-1] for name, tokens in self._boss_tokens.items()]
 
+    def get_opportunity_token(self, boss: Boss) -> str:
+        return self._boss_tokens[boss._name][-1]
             
     def handle_action(self, m: Message) -> str:
         # TODO: should This be here or just raise error when we try to apply the action?
@@ -88,7 +112,7 @@ class BossBattle:
         player = self._players[m.user]
         target = self._bosses[m.target]
         ChosenAbility = AbilityRegistry.registry.get(m.action)
-        return self._apply_action(player, target, ChosenAbility)
+        return self._apply_action(player, ChosenAbility, target)
 
 
     def _player_is_registered(self, name: str) -> bool:
@@ -99,18 +123,34 @@ class BossBattle:
         return name in self._bosses.keys()
 
 
-    def _apply_action(self, caster: Character, ChosenAbility: Type[Ability], target: Character) -> str:
+    def _apply_action(self, caster: Character, chosen_ability: Ability, target: Character) -> str:
         # Stand in until issue #1 is resolved
-        target._stats.health += ChosenAbility.effect.health
+        target._stats += chosen_ability.effect
 
-        return "{} used {} on {}".format(caster._name, ChosenAbility.name, target._name)
+        log_string = "{} used {} on {}".format(caster._name, chosen_ability.name, target._name)
+        
+        # could be that a target is defeated, so append that.
+        return log_string
     
-    def boss_turn(self):
+    def players_turn(self, actions: tuple[Player, str, Boss, str]):
+        log_string = ""
+        for caster, ability_ident, target, solve_token in actions:
+            chosen_ability = AbilityRegistry.registry.get(ability_ident)()
+            op_token = self.get_opportunity_token(target)
+            print(solve_token)
+            print(chosen_ability.verify(op_token, solve_token))
+            if chosen_ability.verify(op_token, solve_token):
+                log_string += self._apply_action(caster, chosen_ability, target) + "\n"
+            else:
+                log_string += "{}: WRONG SOLVE TOKEN!".format(caster._name.upper())
+        return log_string
+
+    def bosses_turn(self):
+        log_string = ""
         for boss in self._bosses.values():
             # caster, ability identifier, target
             caster, ability_ident, target = boss.do_turn(self)
             ChosenAbility = AbilityRegistry.registry.get(ability_ident)
-
-            self._apply_action(caster, ChosenAbility, target)
+            log_string += self._apply_action(caster, ChosenAbility, target) + "\n"
             
-            
+        return log_string
