@@ -1,5 +1,6 @@
 from typing import Any, Optional, Type
 import random
+import copy
 
 from .message import Message
 from .character import Character, Boss, Player
@@ -126,10 +127,18 @@ class BossBattle:
 
 
     def _apply_action(self, caster: Character, chosen_ability: Ability, target: Character) -> str:
-        # Stand in until issue #1 is resolved
-        target._stats += chosen_ability.effect
+        current_effect = copy
 
-        log_string = f"{caster._name} used {chosen_ability.name} on {target._name}"
+        miss = False
+        if current_effect.health < 0:
+            ratio = -current_effect.health / target._stats.agility
+            miss = random.random() > ratio
+            if miss:
+                current_effect.health = 0
+
+        target._stats += current_effect
+
+        log_string = f"{caster._name} used {chosen_ability.name} on {target._name}" + (f" but missed!" if miss else "")
         
         # could be that a target is defeated, so append that.
         return log_string
