@@ -35,7 +35,7 @@ class Ability:
         # print(f"{self.algorithm(op_token) = }")
         return solve_token == self.algorithm(op_token)
 
-    def algorithm(self, op_token):
+    def algorithm(op_token):
         pass
 
 
@@ -45,7 +45,7 @@ class BasicAttack(Ability):
     effect = Stats(health=-5)
     cost = Stats(stamina=-5)
 
-    def algorithm(self, op_token):
+    def algorithm(op_token):
         return ""
 
     def verify(self, op_token, solve_token):
@@ -59,7 +59,7 @@ class Bite(Ability):
     effect = Stats(health=-1)
     cost = Stats(stamina=-1)  # dignity -50
 
-    def algorithm(self, op_token):
+    def algorithm(op_token):
         return ""
 
     def verify(self, boss: Boss, solve_token):
@@ -73,7 +73,7 @@ class Cower(Ability):
     effect = Stats()
     cost = Stats()
 
-    def algorithm(self, op_token):
+    def algorithm(op_token):
         return ""
 
     def verify(self, boss: Boss, solve_token):
@@ -87,7 +87,7 @@ class SwiftStrike(Ability):
     effect = Stats(health=-10)
     cost = Stats(stamina=-5)
 
-    def algorithm(self, op_token):
+    def algorithm(op_token):
         return op_token
 
 
@@ -97,6 +97,6 @@ class Heal(Ability):
     effect = Stats(health=5)
     cost = Stats(mana=-5)
 
-    def algorithm(self, op_token):
+    def algorithm(op_token):
         return op_token[::-1]
 

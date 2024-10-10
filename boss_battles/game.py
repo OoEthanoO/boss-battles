@@ -114,6 +114,8 @@ class BossBattle:
         ChosenAbility = AbilityRegistry.registry.get(m.action)
         if not ChosenAbility:
             return f"{player._name.upper()}: INVALID ACTION!"
+        if not ChosenAbility.verify(ChosenAbility, self.get_opportunity_token(target), m.args[0] if len(m.args) > 0 else ""):
+            return f"{player._name.upper()}: WRONG SOLVE TOKEN!"
         return self._apply_action(player, ChosenAbility, target)
 
 
