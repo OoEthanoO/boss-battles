@@ -1,8 +1,8 @@
-class InvalidMessageError(Exception):
+class InvalidActionStringError(Exception):
     pass
 
 
-class Message:
+class Command:
     user: str
     target: str
     action: str
@@ -23,7 +23,7 @@ class Message:
         
         # Check if both '@' and '/' are present and in the correct order
         if at_pos == -1 or slash_pos == -1 or at_pos > slash_pos:
-            raise InvalidMessageError("InvalidMessageError - Invalid message format.")
+            raise InvalidActionStringError("Invalid message format.")
             # return None  # Invalid format
         
         # Extract user_id and problem_id
@@ -43,12 +43,12 @@ class Message:
         
         # Validate that user_id, problem_id, and cmd are non-empty
         if not user or not target:
-            raise InvalidMessageError("InvalidMessageError - Username and PID must not be empty.")
+            raise InvalidActionStringError("Username and PID must not be empty.")
         
         # Optionally, validate that user_id, problem_id, and cmd are alphanumeric or underscores
         for component in [user, target, action]:
             if not component.replace('_', '').isalnum():
-                raise InvalidMessageError("InvalidMessageError - Invalid characters. Must be letters and numbers only.")
+                raise InvalidActionStringError("Invalid characters. Must be letters and numbers only.")
         
         # Parse arguments into a list
         if args_str:

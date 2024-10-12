@@ -2,7 +2,7 @@ import pytest
 
 from boss_battles.game import BossBattle
 from boss_battles.character import Player, PracticeDummy, Stats
-from boss_battles.message import Message
+from boss_battles.command import Command
 from boss_battles.ability import AbilityRegistry, Ability
 
 
@@ -14,7 +14,7 @@ def test_practice_dummy_battle():
     assert boss._stats.health == 500
 
     # PLAYER TURN
-    message = Message("player@dummy/attack")
+    message = Command("player@dummy/attack")
     battle.handle_action(message)
 
     # Confirm the attack was made on the boss
@@ -45,7 +45,7 @@ def test_practice_dummy_health_expands_when_damaged_beyond_capacity():
     assert boss._stats.health == 500
 
     # PLAYER TURN
-    message = Message("player@dummy/monstertest")
+    message = Command("player@dummy/monstertest")
     battle.handle_action(message)
 
     monster_damage = -MonsterTestAttack.effect.health

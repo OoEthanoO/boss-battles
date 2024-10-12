@@ -1,7 +1,7 @@
 from .game import BossBattle
 from .character import Squirrel, Player
 from .utils import print_health_list
-from .message import Message, InvalidMessageError
+from .command import Command, InvalidMessageError
 
 bosses = [
     Squirrel()
@@ -16,7 +16,7 @@ battle = BossBattle(players=players, bosses=bosses)
 print("Running game")
 ending = 'es' if len(battle._bosses) > 1 else ''
 boss_names = ', '.join(map(str.upper, [b._name for b in battle._bosses.values()]))
-print(f"Boss{ending}: {boss_names}"
+print(f"Boss{ending}: {boss_names}")
 print()
 print("Players:\n" + "\n".join(map(str.upper, [p._name for p in battle._players.values()])))
 while battle.next_round():
@@ -36,7 +36,7 @@ while battle.next_round():
     for player in players:
         action = input(f"{player._name}, enter action string: ")
         try:
-            valid_messages.append(Message(action))
+            valid_messages.append(Command(action))
         except InvalidMessageError as e:
             print(f"Invalid message: '{action}'")
     

@@ -1,7 +1,7 @@
 from typing import Any, Optional, Type
 import random
 
-from .message import Message
+from .command import Command
 from .character import Character, Boss, Player
 from .ability import AbilityRegistry, Ability
 
@@ -50,6 +50,10 @@ class BossBattle:
     @property
     def players(self) -> tuple[Character]:
         return self._players.values()
+
+    @property
+    def bosses(self) -> tuple[Character]:
+        return tuple(self._bosses.values())
     
     def next_round(self) -> bool:
         if not self._should_continue():
@@ -99,7 +103,7 @@ class BossBattle:
     def get_opportunity_token(self, boss: Boss) -> str:
         return self._boss_tokens[boss._name][-1]
             
-    def handle_action(self, m: Message) -> str:
+    def handle_action(self, m: Command) -> str:
         # TODO: should This be here or just raise error when we try to apply the action?
         # if not self._player_is_registered(m.user):
         #     # TODO: problem: fails silently, possible to collect all invalid and print at the end? 

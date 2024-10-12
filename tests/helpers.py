@@ -9,3 +9,20 @@ class FakeRadio:
             return self.messages.pop()
         except IndexError:
             return ""
+
+
+class FakeReader:
+    def __init__(self):
+        self.messages = []
+
+    def add_message(self, msg: str):
+        self.messages.append(msg)
+
+    def add_messages(self, messages: list[str]):
+        self.messages += messages
+
+    def read(self) -> list[str]:
+        tmp = self.messages
+        self.messages = []
+        return tmp
+    
