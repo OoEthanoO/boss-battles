@@ -109,6 +109,8 @@ class GameServer:
                 print(result)
 
             # boss action
+            result = self._battle.bosses_turn()
+            print(result)
 
             if self._testing is True:
                 break

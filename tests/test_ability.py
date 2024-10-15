@@ -1,62 +1,63 @@
 import pytest
-from boss_battles.ability import AbilityRegistry, BasicAttack, Heal, SwiftStrike
+from boss_battles.ability import AbilityRegistry, Punch, CureWounds, Longsword, FireBolt
 from boss_battles.character import Stats, Boss, Player
 
 
 def test_basic_attack_verification():
-    basic_attack = BasicAttack()
+    punch = Punch()
     
-    # Test the verify method of BasicAttack
+    # Test the verify method of Punch
     # It is an ability that is always successful
-    assert basic_attack.verify("abcd", "ac") == True
-    assert basic_attack.verify("abc", "ac") == True
-    assert basic_attack.verify("abcd", "xx") == True
+    assert punch.verify("abcd", "ac") == True
+    assert punch.verify("abc", "ac") == True
+    assert punch.verify("abcd", "xx") == True
 
-def test_heal_algorithm():
-    heal = Heal()
+def test_cure_algorithm():
+    cure = CureWounds()
     
     # Test the algorithm method of Heal
-    result = heal.algorithm("abcd")
-    assert result == "dcba", "Heal algorithm failed"
+    result = cure.algorithm("abcd")
+    assert result == "abcd", "Heal algorithm failed"
 
 def test_heal_verification():
-    heal = Heal()
+    cure = CureWounds()
     
     # Test the verify method of Heal
-    assert heal.verify("abcd", "dcba") == True, "Heal verify failed with correct solve_token"
-    assert heal.verify("abcd", "xx") == False, "Heal verify failed with incorrect solve_token"
+    assert cure.verify("abcde", "abcde") == True, "Heal verify failed with correct solve_token"
+    assert cure.verify("abcd", "xx") == False, "Heal verify failed with incorrect solve_token"
 
 def test_registry_contains_abilities():
     # Test that abilities have been correctly registered in the AbilityRegistry
-    assert "attack" in AbilityRegistry.registry, "BasicAttack was not registered in the AbilityRegistry"
-    assert "heal" in AbilityRegistry.registry, "Heal was not registered in the AbilityRegistry"
+    assert "punch" in AbilityRegistry.registry, "BasicAttack was not registered in the AbilityRegistry"
+    assert "cure" in AbilityRegistry.registry, "Heal was not registered in the AbilityRegistry"
     
     # Test that registered classes are correct
-    assert AbilityRegistry.registry["attack"] == BasicAttack, "BasicAttack registration failed"
-    assert AbilityRegistry.registry["heal"] == Heal, "Heal registration failed"
+    assert AbilityRegistry.registry["punch"] == Punch, "Punch registration failed"
+    assert AbilityRegistry.registry["cure"] == CureWounds, "Cure Wounds registration failed"
 
 def test_registry_lookup():
     # Test the registry lookup and instantiation of abilities
-    ability_class = AbilityRegistry.registry.get("attack")
-    assert ability_class is BasicAttack, "Registry lookup for BasicAttack failed"
+    ability_class = AbilityRegistry.registry.get("punch")
+    assert ability_class is Punch, "Registry lookup for BasicAttack failed"
     
     # Instantiate and use the ability
     ability_instance = ability_class()
-    assert ability_instance.verify("abcd", "ac") == True, "Registry lookup for BasicAttack instantiation failed"
+    assert ability_instance.verify("doesnt", "matter") == True, "Registry lookup for Punch instantiation failed"
     
-    ability_class = AbilityRegistry.registry.get("heal")
-    assert ability_class is Heal, "Registry lookup for Heal failed"
+    ability_class = AbilityRegistry.registry.get("cure")
+    assert ability_class is CureWounds, "Registry lookup for Cure Wounds failed"
     
     # Instantiate and use the ability
     ability_instance = ability_class()
-    assert ability_instance.verify("dcba", "abcd") == True, "Registry lookup for Heal instantiation failed"
+    assert ability_instance.verify("dcba", "dcba") == True
 
 
-def test_swift_strike_registry_lookup():
-    sstrike = AbilityRegistry.registry.get("sstrike")
-    assert sstrike is SwiftStrike
+def test_swift_longsword_registry_lookup():
+    lsword = AbilityRegistry.registry.get("lsword")
+    assert lsword is Longsword
 
 
-def test_swift_strike_algorithm():
-    sstrike = SwiftStrike()
-    assert sstrike.algorithm(op_token="abcd") == "abcd"
+def test_swift_longsword_algorithm():
+    lsword = Longsword()
+    assert lsword.algorithm(op_token="abcd") == "abcd"
+

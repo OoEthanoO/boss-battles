@@ -1,8 +1,9 @@
 import pytest
+from unittest.mock import patch
 
 from boss_battles.game_server import GameServer
 from boss_battles.character import Squirrel, Stats
-from boss_battles.ability import Ability
+from boss_battles.ability import Ability, EffectType
 
 from helpers import FakeReader
 
@@ -10,8 +11,9 @@ from helpers import FakeReader
 class TestAttack(Ability):
     identifier = "testattack"
     name = "Test Attack"
-    effect = Stats(health=-1)
-    cost = Stats()
+    effect_type = EffectType.BLUDGEONING
+    effect_die = (1, 1)
+    modifier_type = Stats.Type.STRENGTH
 
     def algorithm(self, op_token):
         return "solvetoken"
@@ -81,7 +83,10 @@ def test_game_server_changes_to_battle_phase_when_registering_done():
     assert game_server._current_phase == game_server._battle_phase
 
 
-def test_game_server_starts_game_with_squirrel_boss():
+# Player: hit roll 20 (Crit) so double roll for damage
+# boss: 
+@patch("random.randint", side_effect=[20, 1, 1, 20, 1, 1])
+def test_game_server_starts_game_with_squirrel_boss(mock_randint):
     reader = FakeReader()
     reader.add_messages([
         "player1/register",
@@ -96,7 +101,7 @@ def test_game_server_starts_game_with_squirrel_boss():
     assert game.battle._round_count == 0
     assert game.battle.bosses[0] == squirrel
 
-    squirrel._stats.health == 100
+    squirrel._stats.health = 100
     assert squirrel._stats.health == 100
 
     reader.add_messages([
@@ -104,10 +109,12 @@ def test_game_server_starts_game_with_squirrel_boss():
     ])
     game.run()
     assert game.battle._round_count == 1
-    assert squirrel._stats.health == 99
+    assert squirrel._stats.health == 98
 
-
-def test_game_server_rejects_multiple_commands_from_single_player():
+# hit roll 20 (Crit) so double roll for damage
+# boss too
+@patch("random.randint", side_effect=[20, 1, 1, 20, 1, 1])
+def test_game_server_rejects_multiple_commands_from_single_player(mock_randint):
     reader = FakeReader()
     reader.add_messages([
         "player1/register",
@@ -115,6 +122,7 @@ def test_game_server_rejects_multiple_commands_from_single_player():
     ])
     squirrel = Squirrel()
     squirrel._stats.health = 100
+    squirrel._stats.dexterity= 10
     game = GameServer(bosses=[squirrel], reader=reader, testing=True)
     game.run()  # registration phase
 
@@ -123,5 +131,6 @@ def test_game_server_rejects_multiple_commands_from_single_player():
         "player1@squirrel/testattack solvetoken",
     ])
     game.run()  # run battle phase
-    assert squirrel._stats.health == 99
+    # assert squirrel._stats.dexterity == 10
+    assert squirrel._stats.health == 98
 

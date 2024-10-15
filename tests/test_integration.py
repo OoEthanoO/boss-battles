@@ -1,8 +1,9 @@
 import pytest
+from unittest.mock import patch
 
 from boss_battles.character import Squirrel, Player, Stats
 from boss_battles.game import BossBattle
-from boss_battles.ability import Ability
+from boss_battles.ability import Ability, EffectType
 from boss_battles.game_server import GameServer
 from helpers import FakeReader
 
@@ -35,8 +36,9 @@ from helpers import FakeReader
 class TestAttack(Ability):
     identifier = "testattack"
     name = "Test Attack"
-    effect = Stats(health=-1)
-    cost = Stats(stamina=-1)
+    effect_type = EffectType.BLUDGEONING
+    effect_die = (1, 1)
+    modifier_type = Stats.Type.STRENGTH
 
     def algorithm(self, op_token):
         return ""
@@ -49,55 +51,59 @@ class TestAttack(Ability):
 class DifficultTestAttack(Ability):
     identifier = "difficulttestattack"
     name = "Difficult Test Attack"
-    effect = Stats(health=-1)
-    cost = Stats(stamina=-1)
+    effect_type = EffectType.BLUDGEONING
+    effect_die = (1, 1)
+    modifier_type = Stats.Type.STRENGTH
 
     def algorithm(self, op_token):
         return "correcttoken"
 
 
-# def test_squirrel_battle():
+# player: 20 roll 100% hit chance, two rolls of 1 give 2 damage
+# boss:   20 roll 100% hit chance, two rolls of 1 give 2 damage
+@patch("random.randint", side_effect=[20, 1, 1, 20, 1, 1])
+def test_squirrel_battle(mock_randint):
+    class OnlyBiteSquirrel(Squirrel):
+        _ability_set = ("bite",)
 
-#     boss = Squirrel()
-#     player = Player("tester")
-#     battle = BossBattle(players=[player], bosses=[boss])
-#     # runner = GameRunner(battle)
+    boss = OnlyBiteSquirrel()
+    reader = FakeReader()
+    reader.add_messages([
+        "player/register",
+        "done"
+    ])
+    runner = GameServer(bosses=[boss], reader=reader, testing=True)
+    runner.run()
+    assert len(runner.battle.players) == 1
+    assert runner._current_phase == runner._battle_phase
 
+    boss_health_before = boss._stats.health
+    player = runner.battle.get_player('player')
+    player_health_before = player._stats.health
+    reader.add_message("player@squirrel/punch")
+    runner.run()
+    assert boss._stats.health == boss_health_before - 2
+    assert player._stats.health == player_health_before - 2
+    
 
-#     player._stats.health = 100
-#     boss._stats.health = 200
-#     boss._ability_set = ("testattack", )
-#     all_player_actions = [
-#         [('testattack', 'squirrel', 'solvetoken')],
-#     ]
-#     runner.play(all_player_actions)
-#     assert boss._stats.health == 199
-#     assert player._stats.health == 99
+@patch("random.randint", side_effect=[20, 1, 1])
+def test_squirrel_battle_taking_correct_solves_into_account(mock_randint):
+    boss = Squirrel()
+    boss._stats.health = 2
+    reader = FakeReader()
+    reader.add_messages([
+        "player/register",
+        "done"
+    ])
+    runner = GameServer(bosses=[boss], reader=reader, testing=True)
+    runner.run()
 
-
-# def test_squirrel_battle_taking_correct_solves_into_account():
-#     boss = Squirrel()
-#     player = Player("tester")
-#     battle = BossBattle(players=[player], bosses=[boss])
-#     runner = GameRunner(battle)
-
-#     player._stats.health = 100
-#     boss._stats.health = 200
-#     boss._ability_set = ("testattack", )
-#     all_player_actions = [
-#         [('difficulttestattack', 'squirrel', 'wrongsolvetoken')],
-#     ]
-#     log = runner.play(all_player_actions)
-#     assert boss._stats.health == 200
-#     assert "tester: wrong solve token!" in log.lower()
-
-#     all_player_actions = [
-#         [('difficulttestattack', 'squirrel', 'correcttoken')],
-#     ]
-
-#     log = runner.play(all_player_actions)
-#     assert boss._stats.health == 199
-#     assert "tester used difficult test attack on squirrel" in log.lower()
+    boss_previous_health = boss._stats.health
+    reader.add_message("player@squirrel/difficulttestattack wrongtoken")
+    runner.run()
+    assert boss._stats.health == boss_previous_health  # bad token, so ability doesn't trigger
 
 
 # def test_squirrel_battle_taking_op_tokens_into_account():
+
+# def test_cower_doesnt_inflict_damage():
