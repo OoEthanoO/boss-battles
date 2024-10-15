@@ -16,23 +16,33 @@ class SerialReader:
     def __init__(self, port: str = "COM3", baud_rate: int = 115200):
         self.port = port
         self.baud_rate = baud_rate
+        self.ser = None  # Serial connection initialized to None
+
+    def open(self):
+        """Open the serial connection."""
+        self.ser = serial.Serial(self.port, self.baud_rate, timeout=1)
+
+    def close(self):
+        """Close the serial connection."""
+        if self.ser and self.ser.is_open:
+            self.ser.close()
 
     def read(self) -> list[str]:
-        with serial.Serial(self.port, self.baud_rate) as ser:
-            messages = []
-            while ser.in_wating > 0:
-                message = ser.readline().decode('utf-8').strip()
-                messages.append(message)
+        messages = []
+        while self.ser.in_waiting > 0:
+            message = self.ser.readline().decode('utf-8').strip()
+            messages.append(message)
+            print(f"received: {message}")
         return messages
 
 
 class GameServer:
     def __init__(self, bosses: list[Boss], reader: Optional[Reader] = None, testing: bool = False):
         self._bosses = bosses
-        self._reader = reader
         self._testing = testing
         if reader is None:
             reader = SerialReader()
+        self._reader = reader
         self._action_strings = []
         self._registered_usernames = set()
         self._current_phase = self._registration_phase
@@ -43,12 +53,18 @@ class GameServer:
         return self._battle
     
     def run(self):
-        while True:
-            self._get_messages()
-            self._current_phase()
+        self._reader.open()
+        try:
+            while True:
+                self._get_messages()
+                self._current_phase()
 
-            if self._testing is True:
-                break
+                if self._testing is True:
+                    break
+        except KeyboardInterrupt:
+            pass
+
+        self._reader.close()
 
     def _get_messages(self):
         self._action_strings += self._reader.read()
@@ -80,7 +96,7 @@ class GameServer:
             print("Welcome " + user.upper() + "!")
     
     def _battle_phase(self):
-        while self._battle.next_round():
+        if self._battle.next_round():
             print("=" * 10 + " ROUND " + str(self._battle.get_round()) + " " + "=" * 10)
             print_health_list("BOSSES", self._battle._bosses.values())
             print_health_list("PLAYERS", self._battle._players.values())
@@ -104,13 +120,20 @@ class GameServer:
                 if not any(c.user == command.user for c in valid_commands):
                     valid_commands.append(command)
             
+
+            #TODO: There needs to be some sort of delay here to allow
+            #      players to make their move. Then, player actions will be accounted for
+            #      If a target dies before their action is registered, they lose the turn.
+            #      This should allow for more coordination between players.
+            #      Or should players be able to wait to see other's effects? Eventually the game pace will be
+            #      too fast for this and their microbits will have to act for the players.
+
             for command in valid_commands:
                 result = self._battle.handle_action(command)
                 print(result)
 
+            # TODO: There should be a countdown timer after the player actions and before the boss acts.
+
             # boss action
             result = self._battle.bosses_turn()
             print(result)
-
-            if self._testing is True:
-                break
