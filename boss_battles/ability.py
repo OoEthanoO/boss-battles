@@ -56,6 +56,19 @@ class EffectType(Enum):
     """Represents mental or emotional trauma, targeting the mind directly."""
 
 
+class AbilityType(Enum):
+    DAMAGE = 'damage'
+    """Represents abilities that deal damage to a target."""
+
+    HEAL = 'heal'
+    """Represents abilities that restore health to a target."""
+
+    BUFF = 'buff'
+    """Represents abilities that enhance or improve a target's abilities."""
+
+    DEBUFF = 'debuff'
+    """Represents abilities that weaken or hinder a target's abilities."""
+
 
 class Ability:
     identifier: str
@@ -64,6 +77,7 @@ class Ability:
     effect_type: EffectType
     effect_die: Optional[tuple[int, int]] = None  # XdY - num rolls, dice size
     modifier_type: Stats.Type     # abilities use a primary stat modifier
+    ability_type: AbilityType
 
 
     def __init_subclass__(cls, **kwargs):
@@ -88,6 +102,7 @@ class Punch(Ability):
     effect_type = EffectType.BLUDGEONING
     effect_die = (1, 2)
     modifier_type = Stats.Type.STRENGTH
+    ability_type = AbilityType.DAMAGE
 
     def algorithm(self, op_token):
         return ""
@@ -103,6 +118,7 @@ class Bite(Ability):
     effect_type = EffectType.SLASHING
     effect_die = (1, 1)
     modifier_type = Stats.Type.STRENGTH
+    ability_type = AbilityType.DAMAGE
 
     def algorithm(self, op_token):
         return ""
@@ -118,6 +134,7 @@ class Cower(Ability):
     effect_die = (0, 0)
     modifier_type = Stats.Type.CONSTITUTION
     effect_type = EffectType.PSYCHIC
+    ability_type = AbilityType.BUFF
 
     def algorithm(self, op_token):
         return ""
@@ -133,6 +150,7 @@ class Longsword(Ability):
     effect_type = EffectType.SLASHING
     effect_die = (1, 8)
     modifier_type = Stats.Type.STRENGTH
+    ability_type = AbilityType.DAMAGE
 
     def algorithm(self, op_token):
         return op_token
@@ -144,6 +162,7 @@ class FireBolt(Ability):
     effect_type = EffectType.FIRE
     effect_die = (1, 10)
     modifier_type = Stats.Type.INTELLIGENCE
+    ability_type = AbilityType.DAMAGE
 
     def algorithm(self, op_token):
         return op_token
@@ -155,6 +174,7 @@ class CureWounds(Ability):
     effect_type = EffectType.RADIANT
     effect_die = (1, 8)
     modifier_type = Stats.Type.WISDOM
+    ability_type = AbilityType.HEAL
 
     def algorithm(self, op_token):
         return op_token

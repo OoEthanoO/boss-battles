@@ -1,7 +1,7 @@
 from .game import BossBattle
 from .character import Squirrel, Player
 from .utils import print_health_list
-from .command import Command, InvalidMessageError
+from .command import Command, InvalidActionStringError
 
 bosses = [
     Squirrel()
@@ -37,7 +37,7 @@ while battle.next_round():
         action = input(f"{player._name}, enter action string: ")
         try:
             valid_messages.append(Command(action))
-        except InvalidMessageError as e:
+        except InvalidActionStringError as e:
             print(f"Invalid message: '{action}'")
     
     for action in valid_messages:

@@ -5,7 +5,7 @@ import logging
 
 from .command import Command
 from .character import Character, Boss, Player, Stats
-from .ability import AbilityRegistry, Ability, EffectType
+from .ability import AbilityRegistry, Ability, EffectType, AbilityType
 
 
 # Configure logging
@@ -153,45 +153,55 @@ class BossBattle:
 
 
     def _apply_action(self, caster: Character, chosen_ability: Ability, target: Character) -> str:
-        # hit roll
-        # print(chosen_ability)
-        hit_roll, crit = BossBattle.hit_roll(caster, chosen_ability.modifier_type)
-        # logging.info(f"{caster._name} rolled {hit_roll}.{' CRIT!' if crit else ''} ")
+        if chosen_ability.ability_type == AbilityType.HEAL:
+            ability_modifier = BossBattle.calc_modifier(caster._stats.get(chosen_ability.modifier_type.value))
+            heal_roll = BossBattle.roll(*chosen_ability.effect_die) + ability_modifier
 
-        target_ac = BossBattle.calc_ac(target)
+            target._stats.health += heal_roll
 
-        if crit is False and hit_roll < target_ac:
-            return f"{caster._name}'s {chosen_ability.name} MISSES {target._name}."
-
-        # damage roll   
-        ability_modifier = BossBattle.calc_modifier(caster._stats.get(chosen_ability.modifier_type.value))
-        damage_roll = BossBattle.damage_roll(
-            effect_die=chosen_ability.effect_die,
-            ability_modifier=ability_modifier,
-            proficiency_bonus=0,  # not implemented, yet
-            crit=crit
-        )
-
-        # check resistances/immunity
-        ability_effect_type = chosen_ability.effect_type
-        actual_damage = BossBattle.calc_actual_damage(target, damage_roll, ability_effect_type)
+            log_string = f"{caster._name} heals {target._name} for {heal_roll} HP."
+            return log_string
         
-        # apply damage
-        target._stats.health -= actual_damage
-        effect_reaction_string = ""
-        if target.is_immune_to(ability_effect_type):
-            effect_reaction_string = " IMMUNE"
-        elif target.is_resistant_to(ability_effect_type):
-            effect_reaction_string = " RESISTANT"
-        elif target.is_vulnerable_to(ability_effect_type):
-            effect_reaction_string = " VULNERABLE"
+        else:
+            # hit roll
+            # print(chosen_ability)
+            hit_roll, crit = BossBattle.hit_roll(caster, chosen_ability.modifier_type)
+            # logging.info(f"{caster._name} rolled {hit_roll}.{' CRIT!' if crit else ''} ")
 
-        log_string = f"{caster._name} inflicts {actual_damage}{' (CRIT)' if crit else ''} on {target._name} ({chosen_ability.name}){effect_reaction_string}."
+            target_ac = BossBattle.calc_ac(target)
 
-        if not target.is_alive():
-            log_string += f"\n{target._name} IS DEFETED!"
-        
-        return log_string
+            if crit is False and hit_roll < target_ac:
+                return f"{caster._name}'s {chosen_ability.name} MISSES {target._name}."
+
+            # damage roll   
+            ability_modifier = BossBattle.calc_modifier(caster._stats.get(chosen_ability.modifier_type.value))
+            damage_roll = BossBattle.damage_roll(
+                effect_die=chosen_ability.effect_die,
+                ability_modifier=ability_modifier,
+                proficiency_bonus=0,  # not implemented, yet
+                crit=crit
+            )
+
+            # check resistances/immunity
+            ability_effect_type = chosen_ability.effect_type
+            actual_damage = BossBattle.calc_actual_damage(target, damage_roll, ability_effect_type)
+            
+            # apply damage
+            target._stats.health -= actual_damage
+            effect_reaction_string = ""
+            if target.is_immune_to(ability_effect_type):
+                effect_reaction_string = " IMMUNE"
+            elif target.is_resistant_to(ability_effect_type):
+                effect_reaction_string = " RESISTANT"
+            elif target.is_vulnerable_to(ability_effect_type):
+                effect_reaction_string = " VULNERABLE"
+
+            log_string = f"{caster._name} inflicts {actual_damage}{' (CRIT)' if crit else ''} on {target._name} ({chosen_ability.name}){effect_reaction_string}."
+
+            if not target.is_alive():
+                log_string += f"\n{target._name} IS DEFETED!"
+            
+            return log_string
 
     @staticmethod
     def calc_actual_damage(target: Character, damage: int, effect_type: EffectType) -> int:
