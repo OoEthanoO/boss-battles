@@ -121,8 +121,33 @@ while True:
     message = radio.receive()
     if message:
         uart.write(message + '\n')
+    
+    if button_b.was_pressed():
+        uart.write("done")
 
 ```
+### Running the Game server
+- Connect the microbit radio server to the computer via USB.
+- Check which port the Microbit is connected to
+    - Device manager
+    - Ports
+    - Take note of the port. On windows its usually COM3
+- Run the Boss Battles package
+    - python -m boss_battles --port=COM3
+
+#### USB Connection over WSL
+- Download the latest usbipd-win release from the GitHub page.
+- Install it by running the installer.
+- Open PowerShell (as Admin) and run:
+    - `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`
+- Restart your computer after enabling the feature.
+- In PowerShell (Admin), check for attached USB devices: `usbipd list`
+- Identify the busid for your micr from the usbipd list output.
+- Use this command to bind the device: `usbipd bind --busid <busid>`
+- Use this command to attach the device: `usbipd attach --busid <busid> --wsl`
+- Open WSL and run: `dmesg | grep tty`
+    - This will show something like /dev/ttyUSB0 or /dev/ttyACM0
+- Grant Permissions to the Serial Port: `sudo chmod 666 /dev/ttyACM0  # Replace with your actual port if different`
 
 ### Registering as a player
 ```python

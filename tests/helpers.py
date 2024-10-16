@@ -14,6 +14,12 @@ class FakeRadio:
 class FakeReader:
     def __init__(self):
         self.messages = []
+    
+    def open(self):
+        pass
+    
+    def close(self): 
+        pass
 
     def add_message(self, msg: str):
         self.messages.append(msg)
